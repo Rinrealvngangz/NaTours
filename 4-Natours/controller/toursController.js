@@ -6,16 +6,24 @@ exports.getallTour = async (req, res) => {
     console.log(req.query);
 
     //BUILD QUERY
-    //1) Filtering
+    //1A) Filtering
     const queryObj = { ...req.query }; // truyền yêu cầu vào obj dùng three dot es6
     const excludedFields = ['page', 'sort', 'limit', 'fields']; //mảng gồm những yêu cầu nếu có
     excludedFields.forEach((el) => delete queryObj[el]); //lặp những phần tử trong mảng nếu có trong obj của
     //quertObj thì xóa element đó
-    // 2) Advanced filtering
+    // 1B) Advanced filtering
     let querytStr = JSON.stringify(queryObj);
     querytStr = querytStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-    const query = Tour.find(JSON.parse(querytStr));
+    let query = Tour.find(JSON.parse(querytStr));
 
+    // 2)Sorting
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createAt');
+    }
     //EXCUTE QUERY
     const tours = await query;
     //const tours = await Tour.find().where('duration').equals(5).where('difficulty').equals('easy');
