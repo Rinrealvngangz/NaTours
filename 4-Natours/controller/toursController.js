@@ -24,6 +24,26 @@ exports.getallTour = async (req, res) => {
     } else {
       query = query.sort('-createAt');
     }
+
+    //3) Fields Limiting
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      query = query.select(fields);
+    } else {
+      query = query.select('-__v');
+    }
+    //4)Pagination
+    //page =2;limit =3
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 100;
+    const skip = (page - 1) * limit;
+
+    query = query.skip(skip).limit(limit);
+
+    if (req.query.page) {
+      const numberTour = await Tour.countDocuments();
+      if (skip >= numberTour) throw new Error('This page is not exist');
+    }
     //EXCUTE QUERY
     const tours = await query;
     //const tours = await Tour.find().where('duration').equals(5).where('difficulty').equals('easy');
