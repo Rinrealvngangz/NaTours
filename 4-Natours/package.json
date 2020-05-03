@@ -11,11 +11,13 @@
   "author": "rinrealvngangz",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "mongoose": "^5.9.7",
     "morgan": "^1.10.0",
-    "slugify": "^1.4.0"
+    "slugify": "^1.4.0",
+    "validator": "^13.0.0"
   },
   "devDependencies": {
     "eslint": "^6.8.0",
