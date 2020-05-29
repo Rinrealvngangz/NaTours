@@ -16,6 +16,11 @@ const userSchema = new mongoose.Schema({
     validate: [validator.isEmail, 'Please provide a valid email'],
   },
   photo: String,
+  role: {
+    type: String,
+    enum: ['user', 'guide', 'lead-guide', 'admin'],
+    default: 'user',
+  },
   password: {
     type: String,
     required: [true, 'Please provide password'],
@@ -47,6 +52,15 @@ userSchema.pre('save', async function (next) {
   this.passwordConfirm = undefined;
   next();
 });
+
+userSchema.pre('save', function (next) {
+  //nếu khác pass và là 1 new doccument thì return nghĩa là ko có thay đổi pass
+  if (!this.isModified('password') || this.isNew) return next();
+  //nếu như đúng là pass set lại thời gian thay đổi pass
+  this.passwordChangedAt = Date.now() - 1000;
+  return next();
+});
+
 // kiểm tra 2 password có bằng ko
 // candidatePassword:password mà user login ,origin password
 // userPassword:password mà user signup ,đã bị Hash ở trên
