@@ -11,6 +11,14 @@ const signtoken = (id) => {
 };
 const createSentToken = (user, statusCode, res) => {
   const token = signtoken(user._id);
+  const cookiesOpion = {
+    expires: new Date(Date.now() + process.env.JWT_COOKIES_EXPIRES_IN * 24 * 60 * 60 * 1000),
+    httpOnly: true,
+  };
+  if (process.env.NODE_ENV === 'production') cookiesOpion.secure = true;
+  res.cookie('jwt', token, cookiesOpion);
+  // Remove password from output
+  user.password = undefined;
   res.status(statusCode).json({
     token,
     status: 'success',
