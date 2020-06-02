@@ -1,5 +1,10 @@
 const express = require('express');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const hpp = require('hpp');
 
 const AppError = require('./utils/appError');
 const globalErrorHandle = require('./controller/errorController');
@@ -8,21 +13,49 @@ const usersRouter = require('./routes/usersRoutes');
 
 const app = express();
 
-//1) Midleware
+//set security HTTP header
+app.use(helmet()); //call helmet
+//1)Global  Midleware
+// development loggin
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-app.use(express.json());
+//giới hạn số lần req nhiều lần từ API,
+const limiter = rateLimit({
+  max: 100,
+  windownMs: 60 * 60 * 1000,
+  message: 'Too many request from this IP,please try again in an hour',
+});
+app.use('/api', limiter);
+
+// Body parser ,reading data from Body into  req.body
+app.use(express.json({ limit: '10kb' })); //limit string
+
+//Data  sanitization agains NoSQL query injection
+app.use(mongoSanitize()); //Chức năng khử trùng sẽ loại bỏ bất kỳ khóa nào bắt đầu bằng '$' trong đầu vào,
+//Data sanitization agains xss
+app.use(xss());
+
+//prevent parameter pollution
+//?sort=duration&sort=price =>[duration,price]
+app.use(
+  hpp({
+    whitelist: ['duration', 'ratingsAverage', 'ratingsQuantity', 'maxGroupSize', 'price', 'difficulty'],
+  })
+);
+//Serving static files
 app.use(express.static(`${__dirname}/public`));
 
 app.use((req, res, next) => {
   console.log('Hello from the middleware');
   next();
 });
-
+//Test middleware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
+  // console.log(req.headers);
+
   next();
 });
 
