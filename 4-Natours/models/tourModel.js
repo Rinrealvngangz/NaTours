@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 //const validator = require('validator');
-const User = require('./userModel');
+//const User = require('./userModel');
 
 const toursSchema = new mongoose.Schema(
   {
@@ -102,7 +102,12 @@ const toursSchema = new mongoose.Schema(
         day: Number,
       },
     ],
-    guides: Array,
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   {
     toJSON: { virtuals: true },
@@ -119,11 +124,11 @@ toursSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
-toursSchema.pre('save', async function (next) {
-  const guidesPromise = this.guides.map(async (id) => await User.findById(id));
-  this.guides = await Promise.all(guidesPromise);
-  next();
-});
+// toursSchema.pre('save', async function (next) {
+//   const guidesPromise = this.guides.map(async (id) => await User.findById(id));
+//   this.guides = await Promise.all(guidesPromise);
+//   next();
+// });
 // toursSchema.pre('save', function (next) {
 //   console.log('Will save document...');
 //   next();
@@ -140,7 +145,10 @@ toursSchema.pre(/^find/, function (next) {
   this.start = Date.now();
   next();
 });
-
+toursSchema.pre(/^find/, function (next) {
+  this.populate({ path: 'guides', select: '-__v -passwordChangedAt' });
+  next();
+});
 toursSchema.post(/^find/, function (docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds`);
   next();
