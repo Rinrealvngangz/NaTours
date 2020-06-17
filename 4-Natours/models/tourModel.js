@@ -89,7 +89,7 @@ const toursSchema = new mongoose.Schema(
       address: String,
       description: String,
     },
-    location: [
+    locations: [
       {
         type: {
           type: String,
@@ -118,12 +118,19 @@ const toursSchema = new mongoose.Schema(
 toursSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
+//Virtual populate
+toursSchema.virtual('reviewsede', {
+  ref: 'Review',
+  localField: '_id',
+  foreignField: 'tour',
+});
 
 // Document midleware run before .save() and create()
 toursSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
+
 // toursSchema.pre('save', async function (next) {
 //   const guidesPromise = this.guides.map(async (id) => await User.findById(id));
 //   this.guides = await Promise.all(guidesPromise);
@@ -149,6 +156,7 @@ toursSchema.pre(/^find/, function (next) {
   this.populate({ path: 'guides', select: '-__v -passwordChangedAt' });
   next();
 });
+
 toursSchema.post(/^find/, function (docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds`);
   next();
