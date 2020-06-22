@@ -5,7 +5,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
-
+const path = require('path');
 const AppError = require('./utils/appError');
 const globalErrorHandle = require('./controller/errorController');
 const toursRouter = require('./routes/toursRoutes');
@@ -14,9 +14,17 @@ const reviewRouter = require('./routes/reviewsRoutes');
 
 const app = express();
 
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
 //set security HTTP header
 app.use(helmet()); //call helmet
+
 //1)Global  Midleware
+
+//Serving static files
+app.use(express.static(path.join(__dirname, 'public')));
+
 // development loggin
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -45,8 +53,6 @@ app.use(
     whitelist: ['duration', 'ratingsAverage', 'ratingsQuantity', 'maxGroupSize', 'price', 'difficulty'],
   })
 );
-//Serving static files
-app.use(express.static(`${__dirname}/public`));
 
 app.use((req, res, next) => {
   console.log('Hello from the middleware');
@@ -61,6 +67,12 @@ app.use((req, res, next) => {
 });
 
 //2) Router
+app.get('/', (req, res) => {
+  res.status(200).render('base', {
+    tour: 'The Park Camper',
+    user: 'rin',
+  });
+});
 app.use('/api/v1/tours', toursRouter);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/reviews', reviewRouter);
