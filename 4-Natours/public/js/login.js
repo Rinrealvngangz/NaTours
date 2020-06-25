@@ -1,19 +1,22 @@
 /* eslint-disable */
 const login = async (email, password) => {
-  console.log(email, password);
   try {
     const res = await axios({
       method: 'POST',
       url: 'http://192.168.1.249:3000/api/v1/users/login',
-
       data: {
         email,
         password,
       },
     });
-    console.log(res);
+    if (res.data.status === 'success') {
+      alert('logged in successfully!');
+      window.setTimeout(() => {
+        location.assign('/');
+      }, 1500);
+    }
   } catch (err) {
-    console.log(err.response.data);
+    alert(err.response.data.message);
   }
 };
 document.querySelector('.form').addEventListener('submit', (e) => {
