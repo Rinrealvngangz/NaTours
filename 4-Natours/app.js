@@ -6,6 +6,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const path = require('path');
+const cookieParSer = require('cookie-parser');
 const AppError = require('./utils/appError');
 const globalErrorHandle = require('./controller/errorController');
 const toursRouter = require('./routes/toursRoutes');
@@ -41,7 +42,7 @@ app.use('/api', limiter);
 
 // Body parser ,reading data from Body into  req.body
 app.use(express.json({ limit: '10kb' })); //limit string
-
+app.use(cookieParSer());
 //Data  sanitization agains NoSQL query injection
 app.use(mongoSanitize()); //Chức năng khử trùng sẽ loại bỏ bất kỳ khóa nào bắt đầu bằng '$' trong đầu vào,
 //Data sanitization agains xss
@@ -62,7 +63,7 @@ app.use((req, res, next) => {
 //Test middleware
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
-  // console.log(req.headers);
+  console.log(req.cookies);
 
   next();
 });
