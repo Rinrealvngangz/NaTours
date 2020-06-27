@@ -42,6 +42,7 @@ app.use('/api', limiter);
 
 // Body parser ,reading data from Body into  req.body
 app.use(express.json({ limit: '10kb' })); //limit string
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParSer());
 //Data  sanitization agains NoSQL query injection
 app.use(mongoSanitize()); //Chức năng khử trùng sẽ loại bỏ bất kỳ khóa nào bắt đầu bằng '$' trong đầu vào,
