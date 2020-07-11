@@ -7,12 +7,14 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const path = require('path');
 const cookieParSer = require('cookie-parser');
+
 const AppError = require('./utils/appError');
 const globalErrorHandle = require('./controller/errorController');
 const toursRouter = require('./routes/toursRoutes');
 const usersRouter = require('./routes/usersRoutes');
 const reviewRouter = require('./routes/reviewsRoutes');
 const viewsRouter = require('./routes/viewsRoutes');
+const bookingRouter = require('./routes/bookingRoutes');
 
 const app = express();
 
@@ -74,6 +76,7 @@ app.use('/', viewsRouter);
 app.use('/api/v1/tours', toursRouter);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/bookings', bookingRouter);
 
 app.all('*', (req, res, next) => {
   // res.status(404).json({
