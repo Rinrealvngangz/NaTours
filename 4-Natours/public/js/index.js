@@ -36,7 +36,7 @@ if (userDataFrom)
     // const name = document.getElementById('name').value;
     // const email = document.getElementById('email').value;
     //  updateSetting({ name, email }, 'data');
-    console.log(form);
+    // console.log(form);
     updateSetting(form, 'data');
   });
 
